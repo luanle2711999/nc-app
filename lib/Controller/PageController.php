@@ -22,6 +22,7 @@ class PageController extends Controller {
 	 */
 	public function index(): TemplateResponse {
 		Util::addScript(Application::APP_ID, 'snextcloud-main');
+		// Util::addStyle(Application::APP_ID, 'test');
 
 		$response = new TemplateResponse(Application::APP_ID, 'main');
 

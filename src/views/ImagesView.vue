@@ -1,21 +1,24 @@
 <template>
-  <div id="content" class="app-snextcloud">
-    <AppContent>
-      <b-carousel
-        v-if="images && images.length"
-        :interval="2000"
-        style="text-shadow: 0px 0px 2px #000"
-        img-width="1024"
-        img-height="480"
-      >
-        <b-carousel-slide
-          v-for="item in images"
-          caption="First Slide"
-          :img-src="item.path"
-          :key="item.key"
-        ></b-carousel-slide>
-      </b-carousel>
-    </AppContent>
+  <div>
+    <div
+      style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+      class="swiper mySwiper2"
+    >
+      <div class="swiper-wrapper">
+        <div class="swiper-slide" v-for="item in images" :key="item.key">
+          <img :src="item.path" />
+        </div>
+      </div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+    <div thumbsSlider="" class="swiper mySwiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide" v-for="item in images" :key="item.key">
+          <img :src="item.path" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -33,11 +36,17 @@ import {
   BCardText,
   BButton,
 } from "@nextcloud/vue";
-import { createClient, AuthType } from "webdav";
+import { createClient } from "webdav";
 import { generateRemoteUrl } from "@nextcloud/router";
 import { getCurrentUser, getRequestToken } from "@nextcloud/auth";
-
+import "swiper/css/thumbs";
+import "swiper/css/navigation";
+import "swiper/css/free-mode";
+import "swiper/css";
 import "@nextcloud/dialogs/styles/toast.scss";
+import "./style.css";
+import { Swiper } from "swiper";
+import { FreeMode, Navigation, Thumbs } from "swiper";
 
 export default {
   name: "App",
@@ -62,9 +71,12 @@ export default {
       updating: false,
       loading: true,
       visible: false,
+      swiper: null,
+      swiper2: null,
     };
   },
-  computed: {
+
+  methods: {
     async getAllImages() {
       const client = createClient(generateRemoteUrl("dav"), {
         headers: { Requesttoken: getRequestToken() },
@@ -92,70 +104,123 @@ export default {
       });
       urls.shift();
       this.images = [...urls];
+      return;
     },
   },
+
   async mounted() {
-    this.getAllImages();
     this.loading = false;
+    this.getAllImages().then(() => {
+      console.log("getAllImages");
+      this.$nextTick(() => {
+        console.log(this.swiper);
+        // this.swiper.update();
+        // this.swiper2.update();
+      });
+    });
+
+    this.swiper = new Swiper(".mySwiper", {
+      loop: true,
+      spaceBetween: 10,
+      slidesPerView: 4,
+      freeMode: true,
+      watchSlidesProgress: true,
+    });
+    this.swiper2 = new Swiper(".mySwiper2", {
+      loop: true,
+      spaceBetween: 10,
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      thumbs: {
+        swiper: this.swiper,
+      },
+    });
+
+    console.log(this.swiper, this.swiper2);
   },
-  methods: {},
 };
 </script>
 <style scoped>
-#app-content > div {
+html,
+body {
+  position: relative;
+  height: 100%;
+}
+
+body {
+  background: #eee;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #000;
+  margin: 0;
+  padding: 0;
+}
+
+.swiper {
   width: 100%;
   height: 100%;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
 }
 
-input[type="text"] {
-  width: 100%;
-}
-
-textarea {
-  flex-grow: 1;
-  width: 100%;
-}
-.item {
-  display: flex;
-  border: 1px solid #c2dedc;
-  margin-bottom: 20px;
-  border-radius: 14px;
+.swiper-slide {
   text-align: center;
-  color: red;
-  justify-content: space-between;
+  font-size: 18px;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.item span {
-  margin-top: 10px;
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.content_container {
-  /* display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column; */
-  margin-top: 50px;
+
+body {
+  background: #000;
+  color: #000;
 }
-.download {
-  text-align: end;
+
+.swiper {
+  width: 100%;
+  height: 300px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.label {
-  background-color: indigo;
-  color: white;
-  padding: 0.5rem;
-  font-family: sans-serif;
-  border-radius: 0.3rem;
-  cursor: pointer;
-  margin-top: 1rem;
+
+.swiper-slide {
+  background-size: cover;
+  background-position: center;
 }
-.upload {
-  margin-top: 20px;
-  border: none;
+
+.mySwiper2 {
+  height: 80%;
+  width: 100%;
 }
-.image-sample {
-  width: 40px;
-  height: 40px;
+
+.mySwiper {
+  height: 20%;
+  box-sizing: border-box;
+  padding: 10px 0;
+}
+
+.mySwiper .swiper-slide {
+  width: 25%;
+  height: 100%;
+  opacity: 0.4;
+}
+
+.mySwiper .swiper-slide-thumb-active {
+  opacity: 1;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>
