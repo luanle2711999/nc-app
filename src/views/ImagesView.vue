@@ -1,25 +1,36 @@
 <template>
-  <div>
-    <div
-      style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
-      class="swiper mySwiper2"
-    >
-      <div class="swiper-wrapper">
-        <div class="swiper-slide" v-for="item in images" :key="item.key">
-          <img :src="item.path" />
+  <AppContent>
+    <div>
+      <div
+        style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+        class="swiper mySwiper2"
+      >
+        <div class="swiper-wrapper">
+          <div class="swiper-slide" v-for="item in images" :key="item.key">
+            <img :src="item.path" :alt="item.key" />
+          </div>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+      <div thumbsSlider="" class="swiper mySwiper">
+        <div class="swiper-wrapper">
+          <div
+            v-for="(item, index) in images"
+            :class="[
+              'swiper-slide',
+              { 'swiper-slide-thumb-active': item.key === selectedKey },
+            ]"
+            :id="item.key"
+            :key="item.key"
+            @click="() => changeSlide(index, item.key)"
+          >
+            <img :src="item.path" :alt="item.key" />
+          </div>
         </div>
       </div>
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
     </div>
-    <div thumbsSlider="" class="swiper mySwiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide" v-for="item in images" :key="item.key">
-          <img :src="item.path" />
-        </div>
-      </div>
-    </div>
-  </div>
+  </AppContent>
 </template>
 
 <script>
@@ -46,7 +57,6 @@ import "swiper/css";
 import "@nextcloud/dialogs/styles/toast.scss";
 import "./style.css";
 import { Swiper } from "swiper";
-import { FreeMode, Navigation, Thumbs } from "swiper";
 
 export default {
   name: "App",
@@ -73,6 +83,8 @@ export default {
       visible: false,
       swiper: null,
       swiper2: null,
+      styleSlide: null,
+      selectedKey: null,
     };
   },
 
@@ -106,6 +118,15 @@ export default {
       this.images = [...urls];
       return;
     },
+
+    changeSlide(index, key) {
+      this.swiper2.slideTo(index);
+      this.selectedKey = key;
+    },
+    updateSwipers() {
+      this.swiper2.update();
+      this.swiper.update();
+    },
   },
 
   async mounted() {
@@ -113,9 +134,8 @@ export default {
     this.getAllImages().then(() => {
       console.log("getAllImages");
       this.$nextTick(() => {
-        console.log(this.swiper);
-        // this.swiper.update();
-        // this.swiper2.update();
+        console.log(document.querySelectorAll(".swiper-slide"));
+        this.updateSwipers();
       });
     });
 
@@ -126,15 +146,13 @@ export default {
       freeMode: true,
       watchSlidesProgress: true,
     });
+
     this.swiper2 = new Swiper(".mySwiper2", {
       loop: true,
       spaceBetween: 10,
       navigation: {
         nextEl: ".swiper-button-next",
         prevEl: ".swiper-button-prev",
-      },
-      thumbs: {
-        swiper: this.swiper,
       },
     });
 
@@ -186,7 +204,6 @@ body {
 
 .swiper {
   width: 100%;
-  height: 300px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -197,14 +214,14 @@ body {
 }
 
 .mySwiper2 {
-  height: 80%;
   width: 100%;
+  height: calc(100vh - 200px);
 }
 
 .mySwiper {
-  height: 20%;
   box-sizing: border-box;
   padding: 10px 0;
+  height: 200px;
 }
 
 .mySwiper .swiper-slide {
