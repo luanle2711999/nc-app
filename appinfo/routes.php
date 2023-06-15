@@ -19,6 +19,11 @@ return [
 	'routes' => [
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 		['name' => 'note_api#preflighted_cors', 'url' => '/api/0.1/{path}',
-			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']]
+			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
+		['name' => 'file#getFileContent', 'url' => '/file/getFileContent', 'verb' => 'GET'],
+		['name' => 'file#readFileContent', 'url' => '/file/readFileContent', 'verb' => 'GET'],
+		['name' => 'file#readFile', 'url' => '/file/readFile', 'verb' => 'GET'],
+		['name' => 'thumbnail#get', 'url' => '/thumbnail/get', 'verb' => 'GET'],
+		['name' => 'file#getTestFile', 'url' => '/file/getTestFile', 'verb' => 'GET'],
 	]
 ];
